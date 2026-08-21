@@ -334,6 +334,13 @@
       outline: 3px solid #EBD769;
       outline-offset: 3px;
     }
+    .recommendation-visual.report-tile {
+      margin: 0;
+    }
+    .recommendation-visual.report-tile img {
+      height: auto;
+      max-height: 340px;
+    }
     .report-tile figcaption {
       padding: 8px 4px 2px;
       color: var(--ink);
@@ -901,9 +908,10 @@
               <div class="card danger recommendation-card"><h3>Publisher instability</h3><p class="muted">Performance varies significantly by publisher.</p></div>
             </div>
           </div>
-          <div class="recommendation-visual">
-            <img class="comparison-chart" src="Reports/v1.4%20vs%20v2.1.png" alt="Comparison chart of v1.4 and v2.1 performance metrics" />
-          </div>
+          <figure class="recommendation-visual report-tile">
+            <img class="comparison-chart" src="Reports/v1.4%20vs%20v2.1.png" alt="Comparison chart of v1.4 and v2.1 performance metrics" tabindex="0" />
+            <figcaption class="report-note">Click to enlarge graphs</figcaption>
+          </figure>
         </div>
       </div>
       <div class="footer"><span>Decision: ship / hold / fix</span><span>02</span></div>
