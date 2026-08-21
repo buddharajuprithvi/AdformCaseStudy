@@ -95,7 +95,7 @@
       position: absolute;
       left: 70px;
       right: 70px;
-      bottom: 22px;
+      bottom: 48px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -154,6 +154,33 @@
     .card.caution { border-color: rgba(255,159,47,0.45); }
     .card.danger { border-color: rgba(255,91,91,0.45); }
     .card.clean { background: rgba(255,255,255,0.045); }
+    .recommendation-stack {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 0;
+      align-items: start;
+    }
+    .recommendation-grid { display: grid; gap: 10px; grid-template-columns: 1fr; }
+    .recommendation-card { padding: 11px 12px; min-height: 76px; }
+    .recommendation-card h3 { font-size: 14px; margin-bottom: 4px; }
+    .recommendation-card p { font-size: 12px; line-height: 1.24; }
+    .recommendation-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(250px, 0.75fr);
+      gap: 22px;
+      align-items: center;
+      margin-top: 18px;
+    }
+    .recommendation-visual {
+      padding: 12px;
+      background: #f8fbfd;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+    .recommendation-visual .comparison-chart {
+      max-height: 340px;
+    }
 
     .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
     .pill {
@@ -234,6 +261,112 @@
       line-height: 1.4;
     }
     .visual-slot strong { color: var(--ink); display: block; margin-bottom: 8px; }
+    .comparison-chart {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 430px;
+      object-fit: contain;
+      border-radius: 14px;
+    }
+    .report-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .report-tile {
+      min-width: 0;
+      padding: 8px;
+      background: #f8fbfd;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      cursor: zoom-in;
+    }
+    .report-tile img {
+      display: block;
+      width: 100%;
+      height: 190px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: white;
+    }
+    .report-tile img:focus-visible {
+      outline: 3px solid #EBD769;
+      outline-offset: 3px;
+    }
+    .report-tile figcaption {
+      padding: 8px 4px 2px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .report-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .report-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 5vh 5vw;
+      background: rgba(23,53,74,0.68);
+      z-index: 2000;
+    }
+    .report-modal-open { overflow: hidden; }
+    .report-modal.open { display: flex; }
+    .report-modal-panel {
+      position: relative;
+      width: min(80vw, 1200px);
+      max-height: 90vh;
+      padding: 16px;
+      overflow: auto;
+      background: #f8fbfd;
+      border: 1px solid #cbdbe3;
+      border-radius: 18px;
+      box-shadow: 0 26px 70px rgba(0,0,0,0.34);
+      animation: reportZoomIn 0.22s ease-out;
+    }
+    .report-modal-panel img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 78vh;
+      object-fit: contain;
+      border-radius: 10px;
+      background: white;
+    }
+    .report-modal-panel figcaption {
+      padding: 10px 4px 0;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .report-modal-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 36px;
+      height: 36px;
+      border: 1px solid #cbdbe3;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.96);
+      color: var(--ink);
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+      z-index: 1;
+    }
+    .report-modal-close:hover { background: #eef8fd; }
+    @keyframes reportZoomIn {
+      from { opacity: 0.7; transform: scale(0.72); }
+      to { opacity: 1; transform: scale(1); }
+    }
 
     .route-map { display: grid; gap: 13px; margin-top: 12px; }
     .route-row { display: grid; grid-template-columns: 130px 1fr 116px; gap: 10px; align-items: center; }
@@ -339,7 +472,8 @@
       cursor: pointer;
       backdrop-filter: blur(12px);
     }
-    .nav-btn:hover { background: rgba(215,255,47,0.16); border-color: rgba(215,255,47,0.44); }
+    .nav-btn:hover:not(:disabled) { background: rgba(215,255,47,0.16); border-color: rgba(215,255,47,0.44); }
+    .nav-btn:disabled { opacity: 0.35; cursor: default; }
     .progress { position: fixed; left: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, var(--lime), var(--cyan)); width: 0%; z-index: 101; transition: width 0.25s ease; }
     .help { position: fixed; left: 22px; bottom: 18px; color: rgba(255,255,255,0.55); font-size: 12px; z-index: 100; }
 
@@ -353,6 +487,12 @@
       h1 { font-size: 50px; }
       h2 { font-size: 36px; }
       .grid-2, .grid-3, .grid-4, .grid-main, .split-hero, .compare { grid-template-columns: 1fr; }
+      .recommendation-layout { grid-template-columns: 1fr; }
+      .recommendation-stack { grid-template-columns: 1fr; }
+      .recommendation-grid { grid-template-columns: 1fr; }
+      .report-gallery { grid-template-columns: 1fr; }
+      .report-tile img { height: auto; max-height: 260px; }
+      .report-modal-panel { width: 92vw; max-height: 88vh; }
       .orb { width: 310px; height: 310px; margin: 20px auto 0; }
       .metric-grid { grid-template-columns: repeat(2, 1fr); }
       .timeline { grid-template-columns: 1fr; }
@@ -587,12 +727,27 @@
       box-shadow: 0 6px 18px rgba(31,75,99,0.11);
       backdrop-filter: none;
     }
-    .nav-btn:hover {
+    .nav-btn:hover:not(:disabled) {
       background: #eef8fd;
       border-color: rgba(10,130,190,0.42);
     }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+      box-shadow: none;
+    }
     .progress {
-      background: linear-gradient(90deg, #0A82BE 0%, #0A82BE 88%, #EBD769 100%);
+      background: #0A82BE;
+      overflow: hidden;
+    }
+    .progress::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 8px;
+      background: #EBD769;
     }
     .help { color: #84929b; }
 
@@ -623,57 +778,68 @@
       <div class="slide-content">
         <div class="kicker">Final decision</div>
         <h2>Ship v2.1 — but only on validated cohorts first.</h2>
-        <div class="decision-band">
-          <div class="decision active">
-            <div class="label">Recommend</div>
-            <div class="value">Ship v2.1 controlled</div>
-            <div class="why">Better overall unit economics, with known segment-level regressions.</div>
+        <p class="subhead" style="font-size:18px; max-width:1080px; margin-top:-8px;">v2.1 is not universally better, but it is more efficient overall and wins materially in several high-value/high-volume cohorts. The regressions are concentrated and identifiable, which is why a controlled/hybrid rollout is preferable to either a full rollout or a hold.</p>
+        <div class="recommendation-layout">
+          <div class="recommendation-stack">
+            <div class="recommendation-grid four">
+              <div class="card glow recommendation-card"><h3>Better overall efficiency</h3><p class="muted">ROAS <strong>2.84 → 2.93</strong>; CPA <strong>$9.54 → $9.08</strong>.</p></div>
+              <div class="card glow recommendation-card"><h3>Lower spend</h3><p class="muted"><strong>~ $542 less overall</strong> while preserving strong business outcomes.</p></div>
+              <div class="card glow recommendation-card"><h3>Strong in high-value cohorts</h3><p class="muted">Especially <strong>Mobile, Lookalike, APAC, 728x90, Video</strong>.</p></div>
+              <div class="card glow recommendation-card"><h3>Broad campaign improvement</h3><p class="muted">Better CPA in <strong>4/5</strong> campaigns and better ROAS in <strong>3/5</strong>.</p></div>
+            </div>
+            <div class="recommendation-grid two">
+              <div class="card caution recommendation-card"><h3>More selective bidding</h3><p class="muted">Lower win rate, <strong>~ 43.2% → 31.5%</strong> but better unit economics in key segments.</p></div>
+            </div>
+            <div class="recommendation-grid three">
+              <!-- <div class="card danger recommendation-card"><h3>Lower win rate</h3><p class="muted"><strong>~ 43.2% → 31.5%</strong>, creating scale and delivery risk.</p></div> -->
+              <div class="card danger recommendation-card"><h3>Segment regressions</h3><p class="muted">Weaker in <strong>CMP_1003, Tablet, 320x50, Retargeting</strong>.</p></div>
+              <!-- <div class="card danger recommendation-card"><h3>Possible over-conservatism</h3><p class="muted">May miss valuable auctions in some cohorts.</p></div> -->
+              <div class="card danger recommendation-card"><h3>Calibration not uniformly better</h3><p class="muted">Some segments still show prediction error.</p></div>
+              <div class="card danger recommendation-card"><h3>Publisher instability</h3><p class="muted">Performance varies significantly by publisher.</p></div>
+            </div>
           </div>
-          <div class="decision">
-            <div class="label">Do not</div>
-            <div class="value">Full replace v1.4</div>
-            <div class="why">Regression pockets still need isolation and fixes.</div>
+          <div class="recommendation-visual">
+            <img class="comparison-chart" src="Reports/v1.4%20vs%20v2.1.png" alt="Comparison chart of v1.4 and v2.1 performance metrics" />
           </div>
-          <div class="decision">
-            <div class="label">Fallback</div>
-            <div class="value">Route weak cohorts</div>
-            <div class="why">Use v1.4 only where it is validated to outperform.</div>
-          </div>
-        </div>
-        <div class="grid grid-3" style="margin-top:28px;">
-          <div class="card glow"><div class="big-number accent">4/5</div><h3>Campaigns with better CPA</h3><p class="muted">v2.1 reduces acquisition cost in most campaigns.</p></div>
-          <div class="card glow"><div class="big-number cyan">3/5</div><h3>Campaigns with better ROAS</h3><p class="muted">Efficiency improves, though not uniformly.</p></div>
-          <div class="card caution"><div class="big-number" style="color:var(--orange);">5</div><h3>Regression areas</h3><p class="muted">CMP_1003, Tablet, 320x50, Retargeting, selected publishers.</p></div>
         </div>
       </div>
       <div class="footer"><span>Decision: ship / hold / fix</span><span>02</span></div>
     </section>
 
-    <section class="slide" data-title="Model scorecard">
-      <div class="brand"><span class="brand-dot"></span> Model scorecard</div>
+    <section class="slide" data-title="Cohort report gallery">
+      <div class="brand"><span class="brand-dot"></span> Cohort report gallery</div>
       <div class="slide-content">
-        <div class="kicker">Why v2.1 wins overall</div>
-        <h2>v2.1 is more selective: fewer wins, higher conversion quality, lower spend.</h2>
-        <div class="grid grid-main">
-          <div class="card">
-            <table class="mini-table" aria-label="Model comparison table">
-              <thead><tr><th>Dimension</th><th>v2.1</th><th>v1.4</th></tr></thead>
-              <tbody>
-                <tr><td>CPA</td><td class="tick">Better in 4/5</td><td class="cross">Worse overall</td></tr>
-                <tr><td>ROAS</td><td class="tick">Better in 3/5</td><td>Mixed</td></tr>
-                <tr><td>Spend</td><td class="tick">Lower</td><td class="cross">Higher</td></tr>
-                <tr><td>Win behavior</td><td>Selective</td><td class="cross">Aggressive</td></tr>
-                <tr><td>Conversion quality</td><td class="tick">Higher CVR</td><td>Lower CVR</td></tr>
-                <tr><td>Risk</td><td>Segment regressions</td><td>Over-bidding</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="visual-slot">
-            <div><strong>Tableau placeholder</strong>Insert campaign-level CPA / ROAS comparison here.</div>
-          </div>
+        <div class="kicker">Six views of model performance</div>
+        <h2>Compare v1.4 and v2.1 across the cohorts that shape rollout.</h2>
+        <div class="report-gallery" aria-label="Cohort performance reports">
+          <figure class="report-tile">
+            <img src="Reports/CampaignReport.png" alt="Campaign report comparing v1.4 and v2.1" tabindex="0" />
+            <figcaption>Campaign</figcaption>
+          </figure>
+          <figure class="report-tile">
+            <img src="Reports/PublisherReport.png" alt="Publisher report comparing v1.4 and v2.1" tabindex="0" />
+            <figcaption>Publisher</figcaption>
+          </figure>
+          <figure class="report-tile">
+            <img src="Reports/DeviceReport.png" alt="Device report comparing v1.4 and v2.1" tabindex="0" />
+            <figcaption>Device</figcaption>
+          </figure>
+          <figure class="report-tile">
+            <img src="Reports/RegionReport.png" alt="Region report comparing v1.4 and v2.1" tabindex="0" />
+            <figcaption>Region</figcaption>
+          </figure>
+          <figure class="report-tile">
+            <img src="Reports/AudienceSegmentReport.png" alt="Audience segment report comparing v1.4 and v2.1" tabindex="0" />
+            <figcaption>Audience segment</figcaption>
+          </figure>
+          <figure class="report-tile">
+            <img src="Reports/CreativeFormatReport.png" alt="Creative format report comparing v1.4 and v2.1" tabindex="0" />
+            <figcaption>Creative format</figcaption>
+          </figure>
         </div>
+        <p class="report-note">click to enlarge graphs</p>
       </div>
-      <div class="footer"><span>Replace placeholder once Tableau visuals are ready</span><span>03</span></div>
+      <div class="footer"><span>Use cohort cuts to guide rollout and regression monitoring</span><span>03</span></div>
     </section>
 
     <section class="slide" data-title="Efficiency gains">
@@ -979,6 +1145,14 @@
     </section>
   </main>
 
+  <div class="report-modal" id="reportModal" role="dialog" aria-modal="true" aria-label="Enlarged cohort report">
+    <figure class="report-modal-panel">
+      <button class="report-modal-close" id="reportModalClose" type="button" aria-label="Close enlarged graph">&times;</button>
+      <img id="reportModalImage" src="" alt="" />
+      <figcaption id="reportModalCaption"></figcaption>
+    </figure>
+  </div>
+
   <div class="help">Use ← / → keys. Press F for fullscreen.</div>
   <div class="slide-nav" aria-label="Slide navigation">
     <button class="nav-btn" id="prev" aria-label="Previous slide">‹</button>
@@ -989,19 +1163,57 @@
   <script>
     const slides = Array.from(document.querySelectorAll('.slide'));
     const progress = document.getElementById('progress');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const reportTiles = Array.from(document.querySelectorAll('.report-tile'));
+    const reportModal = document.getElementById('reportModal');
+    const reportModalPanel = document.querySelector('.report-modal-panel');
+    const reportModalImage = document.getElementById('reportModalImage');
+    const reportModalCaption = document.getElementById('reportModalCaption');
+    const reportModalClose = document.getElementById('reportModalClose');
     let current = Math.max(0, Math.min(slides.length - 1, Number(location.hash.replace('#slide-', '')) - 1 || 0));
 
+    function closeReportModal() {
+      reportModal.classList.remove('open');
+      reportModalImage.removeAttribute('src');
+      document.body.classList.remove('report-modal-open');
+    }
+
+    reportTiles.forEach((tile) => {
+      tile.addEventListener('click', () => {
+        const image = tile.querySelector('img');
+        reportModalImage.src = image.src;
+        reportModalImage.alt = image.alt;
+        reportModalCaption.textContent = tile.querySelector('figcaption').textContent;
+        reportModal.classList.add('open');
+        document.body.classList.add('report-modal-open');
+        reportModalClose.focus();
+      });
+    });
+
+    reportModalClose.addEventListener('click', closeReportModal);
+    reportModal.addEventListener('click', (event) => {
+      if (event.target === reportModal) closeReportModal();
+    });
+    reportModalPanel.addEventListener('click', (event) => event.stopPropagation());
+
     function show(index) {
-      current = (index + slides.length) % slides.length;
+      current = Math.max(0, Math.min(slides.length - 1, index));
       slides.forEach((s, i) => s.classList.toggle('active', i === current));
       progress.style.width = ((current + 1) / slides.length * 100) + '%';
       history.replaceState(null, '', '#slide-' + (current + 1));
       document.title = `${String(current + 1).padStart(2, '0')} / ${slides.length} — ${slides[current].dataset.title}`;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === slides.length - 1;
     }
 
-    document.getElementById('prev').addEventListener('click', () => show(current - 1));
-    document.getElementById('next').addEventListener('click', () => show(current + 1));
+    prevBtn.addEventListener('click', () => show(current - 1));
+    nextBtn.addEventListener('click', () => show(current + 1));
     document.addEventListener('keydown', (e) => {
+      if (reportModal.classList.contains('open')) {
+        if (e.key === 'Escape') closeReportModal();
+        return;
+      }
       if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(current + 1); }
       if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(current - 1); }
       if (e.key.toLowerCase() === 'f') {
