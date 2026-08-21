@@ -308,6 +308,27 @@
       font-weight: 700;
       text-align: center;
     }
+    .spending-gallery {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .spending-gallery .report-tile {
+      padding: 5px;
+      border-radius: 10px;
+    }
+    .spending-gallery .report-tile img {
+      height: 82px;
+      border-radius: 6px;
+    }
+    .spending-gallery .report-tile figcaption {
+      padding: 5px 2px 1px;
+      font-size: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .report-modal {
       position: fixed;
       inset: 0;
@@ -837,7 +858,7 @@
             <figcaption>Creative format</figcaption>
           </figure>
         </div>
-        <p class="report-note">click to enlarge graphs</p>
+        <p class="report-note">Click to enlarge graphs</p>
       </div>
       <div class="footer"><span>Use cohort cuts to guide rollout and regression monitoring</span><span>03</span></div>
     </section>
@@ -870,6 +891,33 @@
             </div>
           </div>
         </div>
+        <div class="spending-gallery" aria-label="Spending wasted reports">
+          <figure class="report-tile">
+            <img src="Reports/SpendingWasted/campaign.png" alt="Campaign spending wasted report" tabindex="0" />
+            <figcaption>Campaign</figcaption>
+          </figure>
+          <figure class="report-tile">
+            <img src="Reports/SpendingWasted/publisher_id.png" alt="Publisher spending wasted report" tabindex="0" />
+            <figcaption>Publisher</figcaption>
+          </figure>
+          <figure class="report-tile">
+            <img src="Reports/SpendingWasted/device.png" alt="Device spending wasted report" tabindex="0" />
+            <figcaption>Device</figcaption>
+          </figure>
+          <figure class="report-tile">
+            <img src="Reports/SpendingWasted/region.png" alt="Region spending wasted report" tabindex="0" />
+            <figcaption>Region</figcaption>
+          </figure>
+          <figure class="report-tile">
+            <img src="Reports/SpendingWasted/audience_segment.png" alt="Audience segment spending wasted report" tabindex="0" />
+            <figcaption>Audience</figcaption>
+          </figure>
+          <figure class="report-tile">
+            <img src="Reports/SpendingWasted/creative_format.png" alt="Creative format spending wasted report" tabindex="0" />
+            <figcaption>Creative format</figcaption>
+          </figure>
+        </div>
+        <p class="report-note">Click to enlarge graphs</p>
       </div>
       <div class="footer"><span>Estimated savings are directional and should be validated in rollout</span><span>04</span></div>
     </section>
