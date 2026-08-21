@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adform Model Recommendation — v2.1 Controlled Rollout</title>
+  <style>
+    :root {
+      --bg: #08051d;
+      --bg-2: #11083a;
+      --ink: #f6f4ff;
+      --muted: #b9b3cf;
+      --line: rgba(255,255,255,0.14);
+      --lime: #d7ff2f;
+      --lime-2: #a9e900;
+      --cyan: #25d7ff;
+      --cyan-2: #03a9d9;
+      --pink: #ff5ca8;
+      --orange: #ff9f2f;
+      --red: #ff5b5b;
+      --green: #6cff96;
+      --card: rgba(255,255,255,0.075);
+      --card-2: rgba(255,255,255,0.115);
+      --shadow: 0 24px 70px rgba(0,0,0,0.34);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      background:
+        radial-gradient(circle at 10% 10%, rgba(215,255,47,0.16), transparent 26%),
+        radial-gradient(circle at 88% 18%, rgba(37,215,255,0.14), transparent 28%),
+        linear-gradient(135deg, var(--bg), var(--bg-2));
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow: hidden;
+    }
+
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      width: min(100vw, 177.78vh);
+      height: min(56.25vw, 100vh);
+      aspect-ratio: 16 / 9;
+      position: absolute;
+      inset: 50% auto auto 50%;
+      transform: translate(-50%, -50%);
+      padding: 56px 70px 52px;
+      background:
+        linear-gradient(130deg, rgba(255,255,255,0.065), rgba(255,255,255,0.015)),
+        radial-gradient(circle at 82% 12%, rgba(215,255,47,0.18), transparent 24%),
+        radial-gradient(circle at 4% 98%, rgba(37,215,255,0.13), transparent 35%);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .slide.active { display: block; animation: fadeIn 0.32s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translate(-49%, -50%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.45), transparent 72%);
+      pointer-events: none;
+    }
+
+    .slide-content { position: relative; z-index: 2; height: 100%; }
+
+    .brand {
+      position: absolute;
+      top: 24px;
+      left: 70px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      z-index: 4;
+    }
+    .brand-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 28px rgba(215,255,47,0.8); }
+
+    .footer {
+      position: absolute;
+      left: 70px;
+      right: 70px;
+      bottom: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: rgba(255,255,255,0.54);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      z-index: 4;
+    }
+
+    .kicker {
+      color: var(--lime);
+      font-size: 15px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(56px, 6vw, 84px);
+      line-height: 0.96;
+      letter-spacing: -0.065em;
+      max-width: 930px;
+    }
+    h2 {
+      font-size: 46px;
+      line-height: 1.04;
+      letter-spacing: -0.045em;
+      max-width: 980px;
+      margin-bottom: 24px;
+    }
+    h3 { font-size: 24px; letter-spacing: -0.02em; margin-bottom: 10px; }
+    .subhead { color: var(--muted); font-size: 22px; line-height: 1.45; max-width: 930px; margin-top: 24px; }
+    .big-number { font-size: 78px; line-height: 0.9; font-weight: 900; letter-spacing: -0.06em; }
+    .accent { color: var(--lime); }
+    .cyan { color: var(--cyan); }
+    .pink { color: var(--pink); }
+    .muted { color: var(--muted); }
+
+    .grid { display: grid; gap: 18px; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-main { grid-template-columns: 1.06fr 0.94fr; align-items: stretch; gap: 26px; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 24px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 20px 48px rgba(0,0,0,0.18);
+    }
+    .card.glow { border-color: rgba(215,255,47,0.38); box-shadow: 0 0 0 1px rgba(215,255,47,0.06), 0 28px 70px rgba(215,255,47,0.08); }
+    .card.caution { border-color: rgba(255,159,47,0.45); }
+    .card.danger { border-color: rgba(255,91,91,0.45); }
+    .card.clean { background: rgba(255,255,255,0.045); }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.07);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .pill.good { border-color: rgba(108,255,150,0.38); color: var(--green); }
+    .pill.warn { border-color: rgba(255,159,47,0.45); color: var(--orange); }
+    .pill.bad { border-color: rgba(255,91,91,0.45); color: var(--red); }
+
+    .bullets { display: grid; gap: 12px; margin-top: 12px; }
+    .bullet {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 11px;
+      color: rgba(255,255,255,0.87);
+      font-size: 19px;
+      line-height: 1.32;
+    }
+    .bullet::before { content: ""; width: 9px; height: 9px; margin-top: 8px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 18px rgba(215,255,47,0.7); }
+    .bullet.warn::before { background: var(--orange); box-shadow: 0 0 18px rgba(255,159,47,0.7); }
+    .bullet.bad::before { background: var(--red); box-shadow: 0 0 18px rgba(255,91,91,0.7); }
+    .bullet.cyan::before { background: var(--cyan); box-shadow: 0 0 18px rgba(37,215,255,0.7); }
+
+    .decision-band {
+      margin-top: 34px;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr;
+      gap: 14px;
+      max-width: 1000px;
+    }
+    .decision {
+      padding: 20px 22px;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      min-height: 128px;
+    }
+    .decision.active { background: rgba(215,255,47,0.13); border-color: rgba(215,255,47,0.54); }
+    .decision .label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 800; }
+    .decision .value { margin-top: 13px; font-size: 25px; font-weight: 900; letter-spacing: -0.035em; }
+    .decision .why { margin-top: 7px; color: var(--muted); line-height: 1.32; }
+
+    .mini-table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 18px; }
+    .mini-table th, .mini-table td { padding: 14px 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 16px; }
+    .mini-table th { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; }
+    .mini-table td:last-child, .mini-table th:last-child { text-align: right; }
+    .tick { color: var(--green); font-weight: 900; }
+    .cross { color: var(--red); font-weight: 900; }
+
+    .bar-list { display: grid; gap: 14px; margin-top: 16px; }
+    .bar-row { display: grid; grid-template-columns: 118px 1fr 58px; gap: 14px; align-items: center; font-size: 16px; color: rgba(255,255,255,0.9); }
+    .bar-track { height: 14px; border-radius: 999px; background: rgba(255,255,255,0.11); overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--cyan), var(--lime)); box-shadow: 0 0 24px rgba(215,255,47,0.25); }
+    .bar-value { text-align: right; color: var(--lime); font-weight: 900; }
+
+    .visual-slot {
+      min-height: 250px;
+      border: 1.5px dashed rgba(255,255,255,0.24);
+      border-radius: 28px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.055), rgba(255,255,255,0.02));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      color: rgba(255,255,255,0.58);
+      font-weight: 700;
+      line-height: 1.4;
+    }
+    .visual-slot strong { color: var(--ink); display: block; margin-bottom: 8px; }
+
+    .route-map { display: grid; gap: 13px; margin-top: 12px; }
+    .route-row { display: grid; grid-template-columns: 130px 1fr 116px; gap: 10px; align-items: center; }
+    .route-tag { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.11em; font-weight: 800; }
+    .route-path { height: 44px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255,255,255,0.055); display: flex; align-items: center; padding: 0 18px; color: rgba(255,255,255,0.82); font-weight: 800; }
+    .route-model { text-align: center; border-radius: 999px; padding: 11px 12px; background: rgba(215,255,47,0.14); border: 1px solid rgba(215,255,47,0.42); color: var(--lime); font-weight: 900; }
+    .route-model.fallback { background: rgba(37,215,255,0.11); border-color: rgba(37,215,255,0.38); color: var(--cyan); }
+
+    .timeline { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 24px; }
+    .timeline::before { content: ""; position: absolute; top: 28px; left: 7%; right: 7%; height: 2px; background: linear-gradient(90deg, var(--lime), var(--cyan)); opacity: 0.55; }
+    .step { position: relative; padding-top: 54px; }
+    .step::before { content: attr(data-step); position: absolute; top: 11px; left: 0; width: 36px; height: 36px; border-radius: 50%; background: var(--lime); color: #0b1020; display: grid; place-items: center; font-weight: 950; box-shadow: 0 0 28px rgba(215,255,47,0.42); }
+    .step-title { font-size: 17px; font-weight: 900; letter-spacing: -0.015em; }
+    .step-text { margin-top: 8px; color: var(--muted); line-height: 1.36; font-size: 14px; }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 18px; }
+    .metric {
+      min-height: 90px;
+      border-radius: 20px;
+      padding: 14px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .metric .name { font-size: 14px; font-weight: 900; line-height: 1.1; }
+    .metric .type { font-size: 11px; text-transform: uppercase; letter-spacing: 0.11em; color: var(--muted); }
+
+    .experiment { min-height: 390px; display: grid; grid-template-rows: auto 1fr auto; }
+    .experiment .headline { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .experiment .tag { color: #0b1020; background: var(--lime); border-radius: 999px; padding: 8px 12px; font-size: 12px; font-weight: 950; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+    .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+    .compare-box { border-radius: 20px; border: 1px solid rgba(255,255,255,0.13); padding: 17px; background: rgba(0,0,0,0.14); }
+    .compare-box .small { color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-size: 11px; font-weight: 900; margin-bottom: 7px; }
+    .compare-box .model { font-size: 19px; font-weight: 950; }
+
+    .checklist { display: grid; gap: 13px; margin-top: 14px; }
+    .check { display: flex; align-items: flex-start; gap: 12px; font-size: 18px; line-height: 1.36; color: rgba(255,255,255,0.86); }
+    .check span:first-child { width: 24px; height: 24px; flex: 0 0 24px; border-radius: 50%; display: grid; place-items: center; background: rgba(215,255,47,0.16); color: var(--lime); font-size: 14px; font-weight: 950; border: 1px solid rgba(215,255,47,0.4); }
+
+    .split-hero { display: grid; grid-template-columns: 1.03fr 0.97fr; gap: 36px; height: 100%; align-items: center; }
+    .orb {
+      width: 470px;
+      height: 470px;
+      border-radius: 50%;
+      margin-left: auto;
+      position: relative;
+      background:
+        radial-gradient(circle at 35% 32%, rgba(255,255,255,0.9), transparent 4%),
+        radial-gradient(circle at 40% 40%, var(--lime), transparent 33%),
+        radial-gradient(circle at 68% 52%, var(--cyan), transparent 35%),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.14), rgba(255,255,255,0.04));
+      box-shadow: 0 0 100px rgba(37,215,255,0.2), 0 0 100px rgba(215,255,47,0.16);
+      overflow: hidden;
+    }
+    .orb::before, .orb::after {
+      content: "";
+      position: absolute;
+      inset: 52px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.26);
+    }
+    .orb::after { inset: 115px; border-style: dashed; opacity: 0.8; }
+    .orb-label {
+      position: absolute;
+      left: 50%; top: 50%; transform: translate(-50%, -50%);
+      text-align: center;
+      color: #0b1020;
+      background: rgba(255,255,255,0.85);
+      border-radius: 24px;
+      padding: 18px 22px;
+      font-weight: 950;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.22);
+    }
+    .orb-label small { display: block; color: #263251; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 5px; }
+
+    .quote {
+      font-size: 36px;
+      line-height: 1.13;
+      letter-spacing: -0.045em;
+      font-weight: 900;
+      max-width: 1000px;
+    }
+
+    .slide-nav {
+      position: fixed;
+      right: 22px;
+      bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 100;
+    }
+    .nav-btn {
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: white;
+      border-radius: 50%;
+      font-size: 22px;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+    }
+    .nav-btn:hover { background: rgba(215,255,47,0.16); border-color: rgba(215,255,47,0.44); }
+    .progress { position: fixed; left: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, var(--lime), var(--cyan)); width: 0%; z-index: 101; transition: width 0.25s ease; }
+    .help { position: fixed; left: 22px; bottom: 18px; color: rgba(255,255,255,0.55); font-size: 12px; z-index: 100; }
+
+    @media (max-width: 900px) {
+      body { overflow: auto; }
+      .deck { height: auto; }
+      .slide { position: relative; inset: auto; transform: none; width: 100vw; height: auto; min-height: 100vh; aspect-ratio: auto; padding: 62px 24px 72px; display: block; box-shadow: none; }
+      .slide:not(.active) { display: none; }
+      .brand, .footer { left: 24px; right: 24px; }
+      .brand { top: 22px; }
+      h1 { font-size: 50px; }
+      h2 { font-size: 36px; }
+      .grid-2, .grid-3, .grid-4, .grid-main, .split-hero, .compare { grid-template-columns: 1fr; }
+      .orb { width: 310px; height: 310px; margin: 20px auto 0; }
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .timeline { grid-template-columns: 1fr; }
+      .timeline::before { display: none; }
+      .decision-band { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { overflow: visible; background: white; }
+      .deck { height: auto; }
+      .slide { page-break-after: always; display: block !important; position: relative; transform: none; inset: auto; width: 100vw; height: 56.25vw; box-shadow: none; }
+      .slide-nav, .progress, .help { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck">
+    <section class="slide active" data-title="Title">
+      <div class="brand"><span class="brand-dot"></span> Adform DS Product Case</div>
+      <div class="slide-content split-hero">
+        <div>
+          <div class="kicker">Model recommendation deck</div>
+          <h1>Ship v2.1 with controlled rollout.</h1>
+          <p class="subhead">Capture efficiency gains where v2.1 is validated, keep v1.4 only for regression cohorts, and resolve traffic-quality uncertainty before full replacement.</p>
+          <div class="pill-row">
+            <span class="pill good">Primary call: Controlled rollout</span>
+            <span class="pill warn">Do not fully replace yet</span>
+            <span class="pill">Hybrid routing</span>
+          </div>
+        </div>
+        <div class="orb" aria-hidden="true"><div class="orb-label"><small>Decision</small>v2.1<br/>controlled</div></div>
+      </div>
+      <div class="footer"><span>v2.1 vs v1.4 bidding model analysis</span><span>01</span></div>
+    </section>
+
+    <section class="slide" data-title="Executive recommendation">
+      <div class="brand"><span class="brand-dot"></span> Recommendation</div>
+      <div class="slide-content">
+        <div class="kicker">Final decision</div>
+        <h2>Ship v2.1 — but only on validated cohorts first.</h2>
+        <div class="decision-band">
+          <div class="decision active">
+            <div class="label">Recommend</div>
+            <div class="value">Ship v2.1 controlled</div>
+            <div class="why">Better overall unit economics, with known segment-level regressions.</div>
+          </div>
+          <div class="decision">
+            <div class="label">Do not</div>
+            <div class="value">Full replace v1.4</div>
+            <div class="why">Regression pockets still need isolation and fixes.</div>
+          </div>
+          <div class="decision">
+            <div class="label">Fallback</div>
+            <div class="value">Route weak cohorts</div>
+            <div class="why">Use v1.4 only where it is validated to outperform.</div>
+          </div>
+        </div>
+        <div class="grid grid-3" style="margin-top:28px;">
+          <div class="card glow"><div class="big-number accent">4/5</div><h3>Campaigns with better CPA</h3><p class="muted">v2.1 reduces acquisition cost in most campaigns.</p></div>
+          <div class="card glow"><div class="big-number cyan">3/5</div><h3>Campaigns with better ROAS</h3><p class="muted">Efficiency improves, though not uniformly.</p></div>
+          <div class="card caution"><div class="big-number" style="color:var(--orange);">5</div><h3>Regression areas</h3><p class="muted">CMP_1003, Tablet, 320x50, Retargeting, selected publishers.</p></div>
+        </div>
+      </div>
+      <div class="footer"><span>Decision: ship / hold / fix</span><span>02</span></div>
+    </section>
+
+    <section class="slide" data-title="Model scorecard">
+      <div class="brand"><span class="brand-dot"></span> Model scorecard</div>
+      <div class="slide-content">
+        <div class="kicker">Why v2.1 wins overall</div>
+        <h2>v2.1 is more selective: fewer wins, higher conversion quality, lower spend.</h2>
+        <div class="grid grid-main">
+          <div class="card">
+            <table class="mini-table" aria-label="Model comparison table">
+              <thead><tr><th>Dimension</th><th>v2.1</th><th>v1.4</th></tr></thead>
+              <tbody>
+                <tr><td>CPA</td><td class="tick">Better in 4/5</td><td class="cross">Worse overall</td></tr>
+                <tr><td>ROAS</td><td class="tick">Better in 3/5</td><td>Mixed</td></tr>
+                <tr><td>Spend</td><td class="tick">Lower</td><td class="cross">Higher</td></tr>
+                <tr><td>Win behavior</td><td>Selective</td><td class="cross">Aggressive</td></tr>
+                <tr><td>Conversion quality</td><td class="tick">Higher CVR</td><td>Lower CVR</td></tr>
+                <tr><td>Risk</td><td>Segment regressions</td><td>Over-bidding</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="visual-slot">
+            <div><strong>Tableau placeholder</strong>Insert campaign-level CPA / ROAS comparison here.</div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>Replace placeholder once Tableau visuals are ready</span><span>03</span></div>
+    </section>
+
+    <section class="slide" data-title="Efficiency gains">
+      <div class="brand"><span class="brand-dot"></span> Efficiency</div>
+      <div class="slide-content">
+        <div class="kicker">Estimated savings</div>
+        <h2>v2.1 removes more inefficiency than it introduces.</h2>
+        <div class="grid grid-main">
+          <div class="card glow">
+            <h3>Where v2.1 reduces waste</h3>
+            <div class="bar-list">
+              <div class="bar-row"><span>Mobile</span><div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div><span class="bar-value">$273</span></div>
+              <div class="bar-row"><span>Lookalike</span><div class="bar-track"><div class="bar-fill" style="width: 76%"></div></div><span class="bar-value">$207</span></div>
+              <div class="bar-row"><span>Campaign</span><div class="bar-track"><div class="bar-fill" style="width: 63%"></div></div><span class="bar-value">$172</span></div>
+              <div class="bar-row"><span>300x250</span><div class="bar-track"><div class="bar-fill" style="width: 38%"></div></div><span class="bar-value">$105</span></div>
+              <div class="bar-row"><span>728x90</span><div class="bar-track"><div class="bar-fill" style="width: 37%"></div></div><span class="bar-value">$100</span></div>
+              <div class="bar-row"><span>APAC</span><div class="bar-track"><div class="bar-fill" style="width: 33%"></div></div><span class="bar-value">$89</span></div>
+              <div class="bar-row"><span>Video</span><div class="bar-track"><div class="bar-fill" style="width: 20%"></div></div><span class="bar-value">$54</span></div>
+            </div>
+          </div>
+          <div class="card clean">
+            <h3>v1.4 weakness</h3>
+            <div class="bullets">
+              <div class="bullet bad">Over-bids into lower conversion inventory.</div>
+              <div class="bullet bad">Mobile: about $307 more spend for only 3 extra conversions.</div>
+              <div class="bullet bad">Lookalike: about $181 excess spend.</div>
+              <div class="bullet warn">Other weak pockets: APAC, CMP_1005, 300x250, 728x90, Video, publisher cohorts.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>Estimated savings are directional and should be validated in rollout</span><span>04</span></div>
+    </section>
+
+    <section class="slide" data-title="Validated cohorts">
+      <div class="brand"><span class="brand-dot"></span> Rollout cohorts</div>
+      <div class="slide-content">
+        <div class="kicker">Where to deploy v2.1 first</div>
+        <h2>Start with strong cohorts, isolate weak cohorts.</h2>
+        <div class="grid grid-2">
+          <div class="card glow">
+            <h3 class="accent">Ship v2.1</h3>
+            <div class="pill-row" style="margin-top:22px;">
+              <span class="pill good">Mobile</span>
+              <span class="pill good">Lookalike</span>
+              <span class="pill good">APAC</span>
+              <span class="pill good">300x250</span>
+              <span class="pill good">728x90</span>
+              <span class="pill good">Video</span>
+            </div>
+            <div class="bullets" style="margin-top:24px;">
+              <div class="bullet">Validated efficiency advantage.</div>
+              <div class="bullet">Lower spend with stronger unit economics.</div>
+              <div class="bullet">Good initial rollout candidates.</div>
+            </div>
+          </div>
+          <div class="card caution">
+            <h3 style="color:var(--orange);">Hold / fix / fallback</h3>
+            <div class="pill-row" style="margin-top:22px;">
+              <span class="pill warn">CMP_1003</span>
+              <span class="pill warn">Tablet</span>
+              <span class="pill warn">320x50</span>
+              <span class="pill warn">Retargeting</span>
+              <span class="pill warn">Bad publishers</span>
+            </div>
+            <div class="bullets" style="margin-top:24px;">
+              <div class="bullet warn">Evidence of segment-level regression.</div>
+              <div class="bullet warn">Use v1.4 only if it is validated better.</div>
+              <div class="bullet warn">Require monitoring and rollback thresholds.</div>
+            </div>
+          </div>
+        </div>
+        <div class="visual-slot" style="min-height:120px; margin-top:18px;"><div><strong>Tableau placeholder</strong>Insert segment-level regression heatmap here.</div></div>
+      </div>
+      <div class="footer"><span>Hybrid routing until regressions are resolved</span><span>05</span></div>
+    </section>
+
+    <section class="slide" data-title="Scope prioritization">
+      <div class="brand"><span class="brand-dot"></span> Scope X vs Scope Y</div>
+      <div class="slide-content">
+        <div class="kicker">Prioritization</div>
+        <h2>Prioritize Scope X analytically, but test the interaction with Scope Y before full rollout.</h2>
+        <div class="grid grid-2">
+          <div class="card glow">
+            <h3>Scope X first</h3>
+            <div class="bullets">
+              <div class="bullet">Stronger performance evidence.</div>
+              <div class="bullet">Nearer business deadline.</div>
+              <div class="bullet">v2.1 is efficient overall.</div>
+              <div class="bullet">Deploy hybrid routing on validated cohorts.</div>
+            </div>
+          </div>
+          <div class="card caution">
+            <h3>Scope Y as dependency if sensitivity flips</h3>
+            <div class="bullets">
+              <div class="bullet warn">Run analysis with all traffic.</div>
+              <div class="bullet warn">Run analysis excluding flagged traffic.</div>
+              <div class="bullet warn">If v2.1 no longer wins, investigate traffic quality first.</div>
+              <div class="bullet warn">Do not make irreversible full replacement until resolved.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>Priority = evidence + business urgency + dependency risk</span><span>06</span></div>
+    </section>
+
+    <section class="slide" data-title="Implementation plan">
+      <div class="brand"><span class="brand-dot"></span> Implementation</div>
+      <div class="slide-content">
+        <div class="kicker">Controlled rollout path</div>
+        <h2>Move forward without losing control.</h2>
+        <div class="timeline">
+          <div class="step" data-step="1"><div class="step-title">Hybrid routing</div><div class="step-text">Deploy v2.1 on validated cohorts; keep fallback for regressions.</div></div>
+          <div class="step" data-step="2"><div class="step-title">Monitor Scope Y</div><div class="step-text">Keep flagged traffic under enhanced review.</div></div>
+          <div class="step" data-step="3"><div class="step-title">Sensitivity test</div><div class="step-text">Compare all traffic vs cleaned traffic.</div></div>
+          <div class="step" data-step="4"><div class="step-title">Quality action</div><div class="step-text">Block confirmed IVT; keep legitimate inventory.</div></div>
+          <div class="step" data-step="5"><div class="step-title">Re-evaluate</div><div class="step-text">Decide whether hybrid routing is still required.</div></div>
+        </div>
+        <div class="card" style="margin-top:34px;">
+          <div class="route-map">
+            <div class="route-row"><div class="route-tag">Strong cohort</div><div class="route-path">Mobile / Lookalike / APAC / 300x250 / 728x90 / Video</div><div class="route-model">v2.1</div></div>
+            <div class="route-row"><div class="route-tag">Regression</div><div class="route-path">CMP_1003 / Tablet / 320x50 / Retargeting / bad publishers</div><div class="route-model fallback">v1.4 or fix</div></div>
+            <div class="route-row"><div class="route-tag">Default</div><div class="route-path">No explicit override or insufficient evidence</div><div class="route-model">v2.1</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>Routing must be configurable without full redeployment</span><span>07</span></div>
+    </section>
+
+    <section class="slide" data-title="Risks and monitoring">
+      <div class="brand"><span class="brand-dot"></span> Risks & monitoring</div>
+      <div class="slide-content">
+        <div class="kicker">Launch guardrails</div>
+        <h2>Monitor efficiency, delivery, calibration, and segment regressions.</h2>
+        <div class="grid grid-2">
+          <div class="card danger">
+            <h3 style="color:var(--red);">Key risks</h3>
+            <div class="bullets">
+              <div class="bullet bad">Lower win rate.</div>
+              <div class="bullet bad">Lower conversion volume.</div>
+              <div class="bullet bad">Segment-specific regression.</div>
+              <div class="bullet bad">Calibration drift.</div>
+              <div class="bullet bad">Over/under-spend in weak cohorts.</div>
+            </div>
+          </div>
+          <div class="card glow">
+            <h3>Metrics to monitor</h3>
+            <div class="metric-grid">
+              <div class="metric"><span class="type">Primary</span><span class="name">ROAS</span></div>
+              <div class="metric"><span class="type">Primary</span><span class="name">CPA</span></div>
+              <div class="metric"><span class="type">Guardrail</span><span class="name">Conversion volume</span></div>
+              <div class="metric"><span class="type">Guardrail</span><span class="name">Win rate</span></div>
+              <div class="metric"><span class="type">Spend</span><span class="name">Budget delivery</span></div>
+              <div class="metric"><span class="type">Model</span><span class="name">Predicted vs actual CVR</span></div>
+              <div class="metric"><span class="type">Cohort</span><span class="name">Segment performance</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="pill-row">
+          <span class="pill warn">Watch: Tablet</span><span class="pill warn">320x50</span><span class="pill warn">CMP_1003</span><span class="pill warn">Retargeting</span><span class="pill warn">Bad publishers</span>
+        </div>
+      </div>
+      <div class="footer"><span>Rollback criteria defined before launch</span><span>08</span></div>
+    </section>
+
+    <section class="slide" data-title="A/B test critique">
+      <div class="brand"><span class="brand-dot"></span> Test critique</div>
+      <div class="slide-content">
+        <div class="kicker">Is the gap real?</div>
+        <h2>The A/B test is directionally useful, but not fully decision-proof yet.</h2>
+        <div class="grid grid-main">
+          <div class="card">
+            <h3>Validation questions</h3>
+            <div class="checklist">
+              <div class="check"><span>?</span><div>Was traffic truly randomized?</div></div>
+              <div class="check"><span>?</span><div>Were campaign, device, audience, creative, and publisher mixes balanced?</div></div>
+              <div class="check"><span>?</span><div>Are publisher cohorts too fragmented for stable conclusions?</div></div>
+              <div class="check"><span>?</span><div>Are results statistically significant in low-conversion pockets?</div></div>
+              <div class="check"><span>?</span><div>Does Scope Y flagged traffic change the recommendation?</div></div>
+            </div>
+          </div>
+          <div class="card caution">
+            <h3>Example concern</h3>
+            <p class="quote" style="font-size:34px;">“Pub_005 has only 3 conversions for v2.1 — we should not over-read that result.”</p>
+            <p class="subhead" style="font-size:18px; margin-top:22px;">Use these cuts to guide rollout, not as final proof for every publisher-level decision.</p>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>Good PM call = ship carefully, validate continuously</span><span>09</span></div>
+    </section>
+
+    <section class="slide" data-title="Next experiments">
+      <div class="brand"><span class="brand-dot"></span> Experiments</div>
+      <div class="slide-content">
+        <div class="kicker">Next experiment design</div>
+        <h2>Run one model-improvement test and one traffic-quality test.</h2>
+        <div class="grid grid-2">
+          <div class="card experiment glow">
+            <div class="headline"><h3>Experiment 1: Scope X fixes</h3><span class="tag">Model</span></div>
+            <div class="compare">
+              <div class="compare-box"><div class="small">Control</div><div class="model">v2.1</div></div>
+              <div class="compare-box"><div class="small">Treatment</div><div class="model">v2.1 + fixes for Tablet / 320x50 / CMP_1003</div></div>
+            </div>
+            <div>
+              <div class="pill-row"><span class="pill good">Primary: ROAS</span><span class="pill good">CPA</span></div>
+              <div class="pill-row"><span class="pill">Guardrails: conversions</span><span class="pill">win rate</span><span class="pill">spend</span></div>
+            </div>
+          </div>
+          <div class="card experiment caution">
+            <div class="headline"><h3>Experiment 2: Scope Y traffic quality</h3><span class="tag" style="background:var(--orange);">Traffic</span></div>
+            <div class="compare">
+              <div class="compare-box"><div class="small">Control</div><div class="model">Current traffic + current model setup</div></div>
+              <div class="compare-box"><div class="small">Treatment</div><div class="model">Exclude / limit flagged low-quality traffic</div></div>
+            </div>
+            <div>
+              <div class="pill-row"><span class="pill good">Primary: ROAS</span><span class="pill good">CPA</span><span class="pill good">False positives</span></div>
+              <div class="pill-row"><span class="pill warn">IVT rate</span><span class="pill warn">% invalid traffic blocked</span><span class="pill">volume</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>Experiment guardrails protect delivery while optimizing efficiency</span><span>10</span></div>
+    </section>
+
+    <section class="slide" data-title="Traffic quality and compliance">
+      <div class="brand"><span class="brand-dot"></span> Traffic quality & compliance</div>
+      <div class="slide-content">
+        <div class="kicker">Business rule</div>
+        <h2>Suspicion triggers investigation. Confirmed compliance risk triggers blocking.</h2>
+        <div class="grid grid-2">
+          <div class="card caution">
+            <h3>Traffic-quality call</h3>
+            <div class="bullets">
+              <div class="bullet warn">Do not hard-block immediately based only on suspicion.</div>
+              <div class="bullet warn">Monitor flagged traffic and run sensitivity analysis.</div>
+              <div class="bullet warn">If evidence confirms IVT, block/filter it.</div>
+              <div class="bullet warn">If legitimate, keep it.</div>
+              <div class="bullet warn">If inconclusive, continue monitoring or controlled exclusion.</div>
+            </div>
+          </div>
+          <div class="card danger">
+            <h3>Compliance call</h3>
+            <div class="bullets">
+              <div class="bullet bad">Compliance overrides model economics.</div>
+              <div class="bullet bad">Confirmed fraud/policy violations should be blocked regardless of model performance.</div>
+              <div class="bullet bad">Keep the decision auditable: reason, inventory, evidence, date, action.</div>
+              <div class="bullet bad">Re-evaluate model performance after filtering changes the traffic mix.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>Trust and measurement quality come before short-term model gains</span><span>11</span></div>
+    </section>
+
+    <section class="slide" data-title="User story">
+      <div class="brand"><span class="brand-dot"></span> Product requirement</div>
+      <div class="slide-content">
+        <div class="kicker">User story + acceptance criteria</div>
+        <h2>Route each auction to the best validated model version.</h2>
+        <div class="grid grid-main">
+          <div class="card glow">
+            <h3>User story</h3>
+            <p class="quote" style="font-size:31px;">As a Data Science Product Manager, I want traffic routed to the model version that performs best for validated cohorts, so we capture v2.1 efficiency gains while avoiding known regression areas.</p>
+          </div>
+          <div class="card">
+            <h3>Acceptance criteria</h3>
+            <div class="bullets">
+              <div class="bullet">Routing supports campaign, device, audience, creative, and publisher segmentation.</div>
+              <div class="bullet">v1.4 is enabled only for cohorts with validated ROAS / CPA improvement.</div>
+              <div class="bullet">Conflicts have explicit precedence rules.</div>
+              <div class="bullet">Default fallback is defined as v2.1.</div>
+              <div class="bullet">Model assignment is logged for every auction.</div>
+              <div class="bullet">Rollback and monitoring are defined before launch.</div>
+              <div class="bullet">Routing config changes do not require full model redeployment.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer"><span>Core PM deliverable: safe routing + measurable outcomes</span><span>12</span></div>
+    </section>
+
+    <section class="slide" data-title="Executive close">
+      <div class="brand"><span class="brand-dot"></span> Executive close</div>
+      <div class="slide-content split-hero">
+        <div>
+          <div class="kicker">One-line narrative</div>
+          <p class="quote">v2.1 spends advertiser budgets more efficiently overall, but it is too conservative or misprices certain inventory segments.</p>
+          <p class="subhead">Recommendation: controlled rollout, hybrid routing, Scope Y sensitivity analysis, and post-launch monitoring across ROAS, CPA, conversion volume, win rate, spend, and calibration.</p>
+          <div class="pill-row">
+            <span class="pill good">Ship v2.1</span>
+            <span class="pill warn">Fix regressions</span>
+            <span class="pill">Monitor traffic quality</span>
+            <span class="pill">Audit decisions</span>
+          </div>
+        </div>
+        <div class="card glow" style="min-height:420px; display:flex; flex-direction:column; justify-content:center;">
+          <div class="big-number accent">Ship</div>
+          <h3>Controlled rollout</h3>
+          <p class="muted" style="font-size:20px; line-height:1.4; margin-top:12px;">Not a blind replacement. Ship where evidence is strongest, route around regressions, and use experiment results to decide full adoption.</p>
+        </div>
+      </div>
+      <div class="footer"><span>End</span><span>13</span></div>
+    </section>
+  </main>
+
+  <div class="help">Use ← / → keys. Press F for fullscreen.</div>
+  <div class="slide-nav" aria-label="Slide navigation">
+    <button class="nav-btn" id="prev" aria-label="Previous slide">‹</button>
+    <button class="nav-btn" id="next" aria-label="Next slide">›</button>
+  </div>
+  <div class="progress" id="progress"></div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const progress = document.getElementById('progress');
+    let current = Math.max(0, Math.min(slides.length - 1, Number(location.hash.replace('#slide-', '')) - 1 || 0));
+
+    function show(index) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((s, i) => s.classList.toggle('active', i === current));
+      progress.style.width = ((current + 1) / slides.length * 100) + '%';
+      history.replaceState(null, '', '#slide-' + (current + 1));
+      document.title = `${String(current + 1).padStart(2, '0')} / ${slides.length} — ${slides[current].dataset.title}`;
+    }
+
+    document.getElementById('prev').addEventListener('click', () => show(current - 1));
+    document.getElementById('next').addEventListener('click', () => show(current + 1));
+    document.addEventListener('keydown', (e) => {
+      if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(current + 1); }
+      if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(current - 1); }
+      if (e.key.toLowerCase() === 'f') {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+        else document.exitFullscreen?.();
+      }
+      if (e.key === 'Home') show(0);
+      if (e.key === 'End') show(slides.length - 1);
+    });
+
+    show(current);
+  </script>
+</body>
+</html>
