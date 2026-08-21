@@ -908,7 +908,7 @@
               <div class="card danger recommendation-card"><h3>Publisher instability</h3><p class="muted">Performance varies significantly by publisher.</p></div>
             </div>
           </div>
-          <figure class="recommendation-visual report-tile">
+          <figure class="recommendation-visual report-tile" data-modal-caption="v2.1 vs v1.4">
             <img class="comparison-chart" src="Reports/v1.4%20vs%20v2.1.png" alt="Comparison chart of v1.4 and v2.1 performance metrics" tabindex="0" />
             <figcaption class="report-note">Click to enlarge graphs</figcaption>
           </figure>
@@ -1339,7 +1339,7 @@
         const image = tile.querySelector('img');
         reportModalImage.src = image.src;
         reportModalImage.alt = image.alt;
-        reportModalCaption.textContent = tile.querySelector('figcaption').textContent;
+        reportModalCaption.textContent = tile.dataset.modalCaption || tile.querySelector('figcaption').textContent;
         reportModal.classList.add('open');
         document.body.classList.add('report-modal-open');
         reportModalClose.focus();
