@@ -366,6 +366,236 @@
       .slide { page-break-after: always; display: block !important; position: relative; transform: none; inset: auto; width: 100vw; height: 56.25vw; box-shadow: none; }
       .slide-nav, .progress, .help { display: none; }
     }
+
+
+    /* =========================================================
+       Adform light theme — white first, blue primary, yellow accent
+       Brand colors: Blue #0A82BE, Yellow #EBD769
+       ========================================================= */
+    :root {
+      --bg: #eef4f7;
+      --bg-2: #f7fafc;
+      --ink: #17354a;
+      --muted: #687b88;
+      --line: #dce6ec;
+      --lime: #0A82BE;
+      --lime-2: #086fa3;
+      --cyan: #EBD769;
+      --cyan-2: #c6aa34;
+      --yellow-ink: #846c09;
+      --pink: #0A82BE;
+      --orange: #9a7600;
+      --red: #c74c4c;
+      --green: #0A82BE;
+      --card: #ffffff;
+      --card-2: #f7fafc;
+      --shadow: 0 22px 60px rgba(28, 73, 99, 0.12);
+    }
+
+    body {
+      background: #eef4f7;
+      color: var(--ink);
+    }
+
+    .slide {
+      background:
+        radial-gradient(circle at 96% 2%, rgba(10,130,190,0.08), transparent 24%),
+        radial-gradient(circle at 2% 98%, rgba(235,215,105,0.11), transparent 24%),
+        #ffffff;
+      box-shadow: var(--shadow);
+    }
+
+    .slide::before {
+      background-image:
+        linear-gradient(rgba(10,130,190,0.026) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(10,130,190,0.026) 1px, transparent 1px);
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.2), transparent 58%);
+    }
+
+    .brand { color: #71828d; }
+    .brand-dot {
+      background: #0A82BE;
+      box-shadow: none;
+    }
+    .footer { color: #87949d; }
+    .kicker { color: #0A82BE; }
+    .accent { color: #0A82BE; }
+    .cyan { color: var(--yellow-ink); }
+    .pink { color: #0A82BE; }
+    .subhead, .muted { color: var(--muted); }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      box-shadow: 0 14px 34px rgba(31, 75, 99, 0.07);
+      backdrop-filter: none;
+    }
+    .card.clean { background: #f7fafc; }
+    .card.glow {
+      background: #f4fafe;
+      border-color: rgba(10,130,190,0.38);
+      box-shadow: inset 4px 0 0 #0A82BE, 0 14px 34px rgba(31, 75, 99, 0.07);
+    }
+    .card.caution {
+      background: #fffdf5;
+      border-color: rgba(198,170,52,0.42);
+      box-shadow: inset 4px 0 0 #EBD769, 0 14px 34px rgba(31, 75, 99, 0.06);
+    }
+    .card.danger {
+      background: #fff9f8;
+      border-color: rgba(199,76,76,0.30);
+      box-shadow: inset 4px 0 0 #c74c4c, 0 14px 34px rgba(31, 75, 99, 0.06);
+    }
+
+    .pill {
+      border-color: #d8e4ea;
+      background: #f8fbfd;
+      color: #29495c;
+    }
+    .pill.good {
+      border-color: rgba(10,130,190,0.32);
+      background: #eef8fd;
+      color: #0877ae;
+    }
+    .pill.warn {
+      border-color: rgba(198,170,52,0.45);
+      background: #fff9dd;
+      color: #806500;
+    }
+    .pill.bad {
+      border-color: rgba(199,76,76,0.28);
+      background: #fff3f2;
+      color: #b64141;
+    }
+
+    .bullet { color: #29495c; }
+    .bullet::before {
+      background: #0A82BE;
+      box-shadow: none;
+    }
+    .bullet.cyan::before {
+      background: #EBD769;
+      box-shadow: none;
+    }
+    .bullet.warn::before {
+      background: #EBD769;
+      box-shadow: none;
+    }
+    .bullet.bad::before {
+      background: #c74c4c;
+      box-shadow: none;
+    }
+
+    .decision {
+      border-color: var(--line);
+      background: #f8fbfd;
+    }
+    .decision.active {
+      background: #eef8fd;
+      border-color: rgba(10,130,190,0.42);
+      box-shadow: inset 4px 0 0 #0A82BE;
+    }
+
+    .mini-table th, .mini-table td {
+      border-bottom-color: #e4ebef;
+    }
+    .tick { color: #0A82BE; }
+    .cross { color: #c74c4c; }
+
+    .bar-row { color: #29495c; }
+    .bar-track { background: #e8eff3; }
+    .bar-fill {
+      background: #0A82BE;
+      box-shadow: none;
+    }
+    .bar-value { color: #0A82BE; }
+
+    .visual-slot {
+      border-color: rgba(10,130,190,0.32);
+      background: #f8fbfd;
+      color: #738490;
+    }
+    .visual-slot strong { color: #17354a; }
+
+    .route-path {
+      border-color: #dce6ec;
+      background: #f7fafc;
+      color: #29495c;
+    }
+    .route-model {
+      background: #eaf6fc;
+      border-color: rgba(10,130,190,0.36);
+      color: #0876ac;
+    }
+    .route-model.fallback {
+      background: #fff8d8;
+      border-color: rgba(198,170,52,0.44);
+      color: #806500;
+    }
+
+    .timeline::before {
+      background: linear-gradient(90deg, #0A82BE 0%, #0A82BE 78%, #EBD769 100%);
+      opacity: 0.42;
+    }
+    .step::before {
+      background: #0A82BE;
+      color: white;
+      box-shadow: none;
+    }
+
+    .metric {
+      background: #f8fbfd;
+      border-color: #dce6ec;
+    }
+
+    .experiment .tag {
+      color: white;
+      background: #0A82BE;
+    }
+    .compare-box {
+      border-color: #dce6ec;
+      background: #f8fbfd;
+    }
+    .check { color: #29495c; }
+    .check span:first-child {
+      background: #eaf6fc;
+      color: #0A82BE;
+      border-color: rgba(10,130,190,0.32);
+    }
+
+    .orb {
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,255,255,0.98), transparent 4%),
+        radial-gradient(circle at 40% 42%, rgba(10,130,190,0.92), transparent 32%),
+        radial-gradient(circle at 68% 55%, rgba(235,215,105,0.92), transparent 34%),
+        radial-gradient(circle at 50% 50%, #edf7fc, #f8fbfd 72%);
+      border: 1px solid #dce6ec;
+      box-shadow: 0 28px 70px rgba(10,130,190,0.13);
+    }
+    .orb::before, .orb::after { border-color: rgba(255,255,255,0.66); }
+    .orb-label {
+      color: #17354a;
+      background: rgba(255,255,255,0.94);
+      box-shadow: 0 14px 36px rgba(33, 71, 92, 0.16);
+    }
+    .orb-label small { color: #5f7481; }
+
+    .nav-btn {
+      border-color: #ccdbe3;
+      background: rgba(255,255,255,0.94);
+      color: #0A82BE;
+      box-shadow: 0 6px 18px rgba(31,75,99,0.11);
+      backdrop-filter: none;
+    }
+    .nav-btn:hover {
+      background: #eef8fd;
+      border-color: rgba(10,130,190,0.42);
+    }
+    .progress {
+      background: linear-gradient(90deg, #0A82BE 0%, #0A82BE 88%, #EBD769 100%);
+    }
+    .help { color: #84929b; }
+
   </style>
 </head>
 <body>
